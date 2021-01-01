@@ -4,7 +4,6 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +43,10 @@ public class TestProducer implements Callable<Integer> {
     props.put("bootstrap.servers", bootstrapServer);
     props.put("acks", acks);
     props.put("retries", "0");
-    props.put("delivery.timeout.ms", "120000");
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-    Producer<String, String> producer = new KafkaProducer<>(props);
+    var producer = new KafkaProducer<String, String>(props);
     for (int i = 0; i < count; i++) {
       producer.send(new ProducerRecord<>(topic, Integer.toString(i)), (recordMetadata, e) -> {
         if (e != null) {
