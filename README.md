@@ -11,6 +11,13 @@ From within `kafka-docker`folder:
 docker-compose -f docker-compose-cluster.yaml up -d
 ```
 
+### Open a broker shell
+
+```
+./broker-shell.sh [CONTAINER-BROKER-NAME]
+./broker-shell.sh kafka-1
+```
+
 ### Create a topic
 
 ```
@@ -22,18 +29,21 @@ docker-compose -f docker-compose-cluster.yaml up -d
 
 ```
 ./describe-topic.sh [CONTAINER-BROKER-NAME] [TOPIC-NAME]
+./describe-topic.sh kafka-1 test
 ```
 
 ### Delete a topic
 
 ```
 ./delete-topic.sh [CONTAINER-BROKER-NAME] [TOPIC-NAME]
+./delete-topic.sh kafka-1 test
 ```
 
 ### Print high-watermark for a topic
 
 ```
 ./print-hw.sh [CONTAINER-BROKER-NAME] [TOPIC-NAME]
+./print-hw.sh kafka-1 test
 ```
 
 ------
