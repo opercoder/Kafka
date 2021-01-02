@@ -3,7 +3,6 @@ package io.slurm.kafka;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.Callable;
-import javax.management.MalformedObjectNameException;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -14,8 +13,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "test-producer", mixinStandardHelpOptions = true, version = "1.0",
-    description = "Sends messages to a topic continuously")
+@Command(mixinStandardHelpOptions = true, description = "Sends messages to a topic continuously")
 public class TestProducer implements Callable<Integer> {
 
   private final Logger logger = LoggerFactory.getLogger(TestProducer.class);
@@ -38,7 +36,7 @@ public class TestProducer implements Callable<Integer> {
       "--sleep"}, description = "Sleep time between message sends, in milliseconds (default: 0ms)")
   private long sleep = 0;
 
-  public Integer call() throws InterruptedException, MalformedObjectNameException {
+  public Integer call() throws InterruptedException {
     var props = new Properties();
     props.put("client.id", "slurm-producer");
     props.put("bootstrap.servers", bootstrapServer);
@@ -66,10 +64,12 @@ public class TestProducer implements Callable<Integer> {
 
   private static class Stats {
 
-    private long start;
+    private final Logger logger = LoggerFactory.getLogger(Stats.class);
+
+    private final long start;
     private long windowStart;
-    private int[] latencies;
-    private int sampling;
+    private final int[] latencies;
+    private final int sampling;
     private int iteration;
     private int index;
     private long deliveredCount;
@@ -125,7 +125,7 @@ public class TestProducer implements Callable<Integer> {
     }
 
     public Callback nextCompletion(long start) {
-      Callback cb = new PerfCallback(this.iteration, start, this);
+      var cb = new PerfCallback(this.iteration, start, this);
       this.iteration++;
       return cb;
     }
@@ -133,13 +133,14 @@ public class TestProducer implements Callable<Integer> {
     public void printWindow() {
       long elapsed = System.currentTimeMillis() - windowStart;
       double recsPerSec = 1000.0 * windowDelivered / (double) elapsed;
-      System.out.printf(
+      logger.info(String.format(
           "%d records delivered, %d records failed, %.1f records/sec, %.1f ms avg latency, %.1f ms max latency.%n",
           windowDelivered,
           windowErrors,
           recsPerSec,
           windowTotalLatency / (double) windowDelivered,
-          (double) windowMaxLatency);
+          (double) windowMaxLatency)
+      );
     }
 
     public void newWindow() {
@@ -154,7 +155,7 @@ public class TestProducer implements Callable<Integer> {
       long elapsed = System.currentTimeMillis() - start;
       double recsPerSec = 1000.0 * deliveredCount / (double) elapsed;
       int[] percs = percentiles(this.latencies, index, 0.5, 0.95, 0.99, 0.999);
-      System.out.printf(
+      logger.info(String.format(
           "%d records delivered, %d records failed, %f records/sec, %.2f ms avg latency, %.2f ms max latency, %d ms 50th, %d ms 95th, %d ms 99th, %d ms 99.9th.%n",
           deliveredCount,
           errorCount,
@@ -164,7 +165,8 @@ public class TestProducer implements Callable<Integer> {
           percs[0],
           percs[1],
           percs[2],
-          percs[3]);
+          percs[3])
+      );
     }
 
     private static int[] percentiles(int[] latencies, int count, double... percentiles) {
