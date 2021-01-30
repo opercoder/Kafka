@@ -3,12 +3,14 @@ package io.slurm.kafka;
 import io.slurm.kafka.message.RandomChargeMessage;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -25,7 +27,8 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(mixinStandardHelpOptions = true, description = "Reads messages from a topic and processes them")
-public class ReadProcessWriteExactlyOnceApp implements Callable<Integer> {
+public class ReadProcessWriteExactlyOnceApp implements Callable<Integer>,
+    ConsumerRebalanceListener {
 
   private final Logger logger = LoggerFactory
       .getLogger(ReadProcessWriteExactlyOnceApp.class);
@@ -48,12 +51,21 @@ public class ReadProcessWriteExactlyOnceApp implements Callable<Integer> {
   @Option(names = {"--id"}, required = true, description = "Unique Processor ID")
   private String id;
 
+  @Option(names = {
+      "--no-static-membership"}, negatable = true, description = "Enable Static Membership. Default: true")
+  private boolean enableStaticMembership = true;
+
+  @Option(names = {
+      "--no-cooperative-rebalancing"}, negatable = true, description = "Enable Cooperative Rebalancing. Default: true")
+  private boolean enableCooperativeRebalancing = true;
+
   private Consumer<String, String> consumer;
   private Producer<String, String> producer;
+  private Collection<TopicPartition> currentlyAssignedPartitions = Collections.emptyList();
 
   public Integer call() {
     init();
-    consumer.subscribe(Collections.singleton(inputTopic));
+    consumer.subscribe(Collections.singleton(inputTopic), this);
     while (!Thread.interrupted()) {
       process();
     }
@@ -133,6 +145,34 @@ public class ReadProcessWriteExactlyOnceApp implements Callable<Integer> {
     ));
   }
 
+  @Override
+  public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+    logger.info("Received partition assignment after rebalancing: " + partitions);
+    emulateSleep(partitions);
+    currentlyAssignedPartitions = partitions;
+  }
+
+  @Override
+  public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+    logger.info("Revoked partition assignment to kick-off rebalancing: " + partitions);
+    emulateSleep(partitions);
+    currentlyAssignedPartitions = partitions;
+  }
+
+  private void emulateSleep(Collection<TopicPartition> partitions) {
+    if (partitions.isEmpty()) {
+      return;
+    }
+    int sleepMs = partitions.size() * 1_000;
+    logger.info("Sleeping for {} ms to emulate long assignment process for {} partitions...",
+        sleepMs, partitions.size());
+    try {
+      Thread.sleep(sleepMs);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
   private Consumer<String, String> getIsolatedConsumer() {
     var props = new Properties();
     props.put("bootstrap.servers", bootstrapServer);
@@ -141,12 +181,14 @@ public class ReadProcessWriteExactlyOnceApp implements Callable<Integer> {
     props.put("enable.auto.commit", "false");
     // enable read-level isolation for consumer
     props.put("isolation.level", "read_committed");
-    // enable static membership
-    props.put("group.instance.id", getGroupInstanceId());
+    if (enableStaticMembership) {
+      props.put("group.instance.id", getGroupInstanceId());
+    }
     props.put("auto.offset.reset", "earliest");
-    // enable cooperative rebalancing
-    props.put("partition.assignment.strategy",
-        "org.apache.kafka.clients.consumer.CooperativeStickyAssignor");
+    if (enableCooperativeRebalancing) {
+      props.put("partition.assignment.strategy",
+          "org.apache.kafka.clients.consumer.CooperativeStickyAssignor");
+    }
     props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
     props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
     // tell consumer to fetch messages in slightly bigger batches than default (1 byte)
