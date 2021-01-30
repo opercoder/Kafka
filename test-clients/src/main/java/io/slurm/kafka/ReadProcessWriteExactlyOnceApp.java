@@ -82,7 +82,8 @@ public class ReadProcessWriteExactlyOnceApp implements Callable<Integer> {
       var offsets = consumerOffsets();
       producer.sendOffsetsToTransaction(offsets, consumer.groupMetadata());
       producer.commitTransaction();
-      logger.info("Filtered {} suspicious charges into {}", suspiciousCharges.size(), outputTopic);
+      logger.info("Processed {} records, filtered {} suspicious charges into {}", records.count(),
+          suspiciousCharges.size(), outputTopic);
       logCommittedOffsets(offsets);
     } catch (ProducerFencedException e) {
       throw new RuntimeException(String
@@ -144,7 +145,8 @@ public class ReadProcessWriteExactlyOnceApp implements Callable<Integer> {
     props.put("group.instance.id", getGroupInstanceId());
     props.put("auto.offset.reset", "earliest");
     // enable cooperative rebalancing
-    props.put("partition.assignment.strategy", "org.apache.kafka.clients.consumer.CooperativeStickyAssignor");
+    props.put("partition.assignment.strategy",
+        "org.apache.kafka.clients.consumer.CooperativeStickyAssignor");
     props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
     props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
     // tell consumer to fetch messages in slightly bigger batches than default (1 byte)
