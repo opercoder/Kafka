@@ -1,5 +1,6 @@
 package io.slurm.kafka;
 
+import io.slurm.kafka.message.RandomChargeMessage;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -26,7 +27,7 @@ public class TestProducer implements Callable<Integer> {
   private String topic;
 
   @Option(names = {"-a",
-      "--acks"}, description = "Acks configuration, one of [1,0,-1] (default: 1)")
+      "--acks"}, description = "Acks configuration, one of [1,0,-1]. If idempotence is enabled \"-1\" will be enforced. (default: 1)")
   private String acks = "1";
 
   @Option(names = {"-c", "--count"}, required = true, description = "Number of messages to send")
@@ -36,21 +37,28 @@ public class TestProducer implements Callable<Integer> {
       "--sleep"}, description = "Sleep time between message sends, in milliseconds (default: 0ms)")
   private long sleep = 0;
 
+  @Option(names = {"-i", "--idempotent"}, description = "Enable Idempotence (default: false)")
+  private boolean isIdempotent = false;
+
   public Integer call() throws InterruptedException {
     var props = new Properties();
     props.put("client.id", "slurm-producer");
     props.put("bootstrap.servers", bootstrapServer);
-    props.put("acks", acks);
-    props.put("retries", "0");
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    if (isIdempotent) {
+      props.put("enable.idempotence", "true");
+    } else {
+      props.put("acks", acks);
+      props.put("retries", "0");
+    }
 
     var producer = new KafkaProducer<String, String>(props);
     var stats = new Stats(count, 1000);
 
     for (int i = 0; i < count; i++) {
       long sendStartMs = System.currentTimeMillis();
-      producer.send(new ProducerRecord<>(topic, Integer.toString(i)),
+      producer.send(new ProducerRecord<>(topic, new RandomChargeMessage().toJson()),
           stats.nextCompletion(sendStartMs));
       if (sleep > 0) {
         Thread.sleep(sleep);
