@@ -8,42 +8,43 @@ From within `kafka-docker`folder:
 3 brokers, 1 zk, min.insync.replicas = 2, no auto-topic creation, pinned broker IDs (101,102,103) and ports (9092,9093,9094)
 
 ```
-docker-compose -f docker-compose-cluster.yaml up -d
+$ sed -i '' -e 's/192.168.2.17/YOUR_IP_ADDRESS/' docker-compose-cluster.yaml
+$ docker-compose -f docker-compose-cluster.yaml up -d
 ```
 
 ### Open a broker shell
 
 ```
-./broker-shell.sh [CONTAINER-BROKER-NAME]
-./broker-shell.sh kafka-1
+$ ./broker-shell.sh [CONTAINER-BROKER-NAME]
+$ ./broker-shell.sh kafka-1
 ```
 
 ### Create a topic
 
 ```
-./create-topic.sh [CONTAINER-BROKER-NAME] [TOPIC-NAME]
-./create-topic.sh kafka-1 test
+$ ./create-topic.sh [CONTAINER-BROKER-NAME] [TOPIC-NAME]
+$ ./create-topic.sh kafka-1 test
 ```
 
 ### Describe a topic
 
 ```
-./describe-topic.sh [CONTAINER-BROKER-NAME] [TOPIC-NAME]
-./describe-topic.sh kafka-1 test
+$ ./describe-topic.sh [CONTAINER-BROKER-NAME] [TOPIC-NAME]
+$ ./describe-topic.sh kafka-1 test
 ```
 
 ### Delete a topic
 
 ```
-./delete-topic.sh [CONTAINER-BROKER-NAME] [TOPIC-NAME]
-./delete-topic.sh kafka-1 test
+$ ./delete-topic.sh [CONTAINER-BROKER-NAME] [TOPIC-NAME]
+$ ./delete-topic.sh kafka-1 test
 ```
 
 ### Print high-watermark for a topic
 
 ```
-./print-hw.sh [CONTAINER-BROKER-NAME] [TOPIC-NAME]
-./print-hw.sh kafka-1 test
+$ ./print-hw.sh [CONTAINER-BROKER-NAME] [TOPIC-NAME]
+$ ./print-hw.sh kafka-1 test
 ```
 
 ------
@@ -55,7 +56,7 @@ First, build the clients: `mvn package`.
 ### Producer
 
 ```
-java -cp test-clients/target/test-clients-1.0-SNAPSHOT-jar-with-dependencies.jar io.slurm.kafka.TestProducer --help
+$ java -cp test-clients/target/test-clients-1.0-SNAPSHOT-jar-with-dependencies.jar io.slurm.kafka.TestProducer --help
 Usage: test-producer [-hV] [-a=<acks>] -b=<bootstrapServer> -c=<count>
                      [-s=<sleep>] -t=<topic>
 Sends messages to a topic continuously
