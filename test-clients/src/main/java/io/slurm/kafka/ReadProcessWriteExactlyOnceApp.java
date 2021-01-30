@@ -61,8 +61,7 @@ public class ReadProcessWriteExactlyOnceApp implements Callable<Integer>,
 
   private Consumer<String, String> consumer;
   private Producer<String, String> producer;
-  private Collection<TopicPartition> currentlyAssignedPartitions = Collections.emptyList();
-
+  
   public Integer call() {
     init();
     consumer.subscribe(Collections.singleton(inputTopic), this);
@@ -149,14 +148,12 @@ public class ReadProcessWriteExactlyOnceApp implements Callable<Integer>,
   public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
     logger.info("Received partition assignment after rebalancing: " + partitions);
     emulateSleep(partitions);
-    currentlyAssignedPartitions = partitions;
   }
 
   @Override
   public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
     logger.info("Revoked partition assignment to kick-off rebalancing: " + partitions);
     emulateSleep(partitions);
-    currentlyAssignedPartitions = partitions;
   }
 
   private void emulateSleep(Collection<TopicPartition> partitions) {
