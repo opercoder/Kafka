@@ -12,7 +12,7 @@ services:
       - "zookeeper"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ADVERTISED_HOST_NAME: 192.168.2.11
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
@@ -27,7 +27,7 @@ services:
       - "zookeeper"
     environment:
       KAFKA_BROKER_ID: 2
-      KAFKA_ADVERTISED_HOST_NAME: 192.168.2.11
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
       KAFKA_MIN_INSYNC_REPLICAS: 2
@@ -42,7 +42,7 @@ services:
       - "zookeeper"
     environment:
       KAFKA_BROKER_ID: 3
-      KAFKA_ADVERTISED_HOST_NAME: 192.168.2.11
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
       KAFKA_MIN_INSYNC_REPLICAS: 2
