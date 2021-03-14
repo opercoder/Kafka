@@ -16,7 +16,7 @@
     "editable": true,
     "gnetId": 721,
     "graphTooltip": 0,
-    "id": 1,
+    "id": 2,
     "links": [],
     "panels": [
       {
@@ -88,7 +88,7 @@
           {
             "expr": "kafka_controller_kafkacontroller_activecontrollercount{instance!=\"localhost:7071\"}",
             "hide": false,
-            "interval": "",
+            "interval": "1m",
             "intervalFactor": 2,
             "legendFormat": "{{instance}}",
             "metric": "kafka_server_brokertopicmetrics_bytesin_total",
@@ -191,7 +191,7 @@
         "seriesOverrides": [
           {
             "$$hashKey": "object:519",
-            "alias": "/kafka/",
+            "alias": "count",
             "color": "#FADE2A"
           }
         ],
@@ -200,12 +200,12 @@
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum(kafka_cluster_partition_underreplicated{instance!=\"localhost:7071\"})",
+            "expr": "sum(kafka_server_replicamanager_underreplicatedpartitions)",
             "hide": false,
             "instant": false,
-            "interval": "",
-            "intervalFactor": 2,
-            "legendFormat": "",
+            "interval": "1m",
+            "intervalFactor": 1,
+            "legendFormat": "count",
             "metric": "kafka_server_brokertopicmetrics_bytesin_total",
             "refId": "A",
             "step": 4
@@ -305,7 +305,7 @@
         "seriesOverrides": [
           {
             "$$hashKey": "object:519",
-            "alias": "/kafka/",
+            "alias": "count",
             "color": "#F2495C"
           }
         ],
@@ -317,9 +317,9 @@
             "expr": "sum(kafka_controller_kafkacontroller_offlinepartitionscount)",
             "hide": false,
             "instant": false,
-            "interval": "",
+            "interval": "1m",
             "intervalFactor": 2,
-            "legendFormat": "",
+            "legendFormat": "count",
             "metric": "kafka_server_brokertopicmetrics_bytesin_total",
             "refId": "A",
             "step": 4
@@ -375,6 +375,7 @@
         "dashLength": 10,
         "dashes": false,
         "datasource": "Prometheus",
+        "description": "",
         "editable": true,
         "error": false,
         "fieldConfig": {
@@ -388,7 +389,7 @@
         "grid": {},
         "gridPos": {
           "h": 7,
-          "w": 8,
+          "w": 12,
           "x": 0,
           "y": 8
         },
@@ -422,10 +423,10 @@
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum without(instance)(delta(kafka_server_brokertopicmetrics_bytesout_total{job=\"kafka\",topic!=\"\"}[1m]))",
+            "expr": "abs(1 - kafka_server_kafkarequesthandlerpool_requesthandleravgidlepercent_minute_rate)",
             "interval": "1m",
             "intervalFactor": 1,
-            "legendFormat": "{{topic}}",
+            "legendFormat": "{{instance}}",
             "metric": "kafka_server_brokertopicmetrics_bytesin_total",
             "refId": "A",
             "step": 4
@@ -435,7 +436,7 @@
         "timeFrom": null,
         "timeRegions": [],
         "timeShift": null,
-        "title": "Bytes Out Per Topic",
+        "title": "Request Handler Pool Busyness",
         "tooltip": {
           "msResolution": false,
           "shared": true,
@@ -453,10 +454,119 @@
         "yaxes": [
           {
             "$$hashKey": "object:1057",
-            "format": "bytes",
-            "label": "bytes/min",
+            "decimals": null,
+            "format": "percentunit",
+            "label": "",
+            "logBase": 1,
+            "max": "1",
+            "min": null,
+            "show": true
+          },
+          {
+            "$$hashKey": "object:1058",
+            "format": "short",
+            "label": null,
             "logBase": 1,
             "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "description": "",
+        "editable": true,
+        "error": false,
+        "fieldConfig": {
+          "defaults": {
+            "custom": {}
+          },
+          "overrides": []
+        },
+        "fill": 1,
+        "fillGradient": 0,
+        "grid": {},
+        "gridPos": {
+          "h": 7,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        },
+        "hiddenSeries": false,
+        "id": 18,
+        "isNew": true,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 2,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {
+          "alertThreshold": true
+        },
+        "percentage": false,
+        "pluginVersion": "7.4.3",
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "1 - kafka_network_socketserver_networkprocessoravgidlepercent",
+            "interval": "1m",
+            "intervalFactor": 1,
+            "legendFormat": "{{instance}}",
+            "metric": "kafka_server_brokertopicmetrics_bytesin_total",
+            "refId": "A",
+            "step": 4
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Network Pool Busyness",
+        "tooltip": {
+          "msResolution": false,
+          "shared": true,
+          "sort": 0,
+          "value_type": "cumulative"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "$$hashKey": "object:1057",
+            "decimals": null,
+            "format": "percentunit",
+            "label": "",
+            "logBase": 1,
+            "max": "1",
             "min": null,
             "show": true
           },
@@ -574,7 +684,7 @@
           {
             "$$hashKey": "object:878",
             "format": "short",
-            "label": "messages/min",
+            "label": "messages",
             "logBase": 1,
             "max": null,
             "min": null,
@@ -680,7 +790,7 @@
           {
             "$$hashKey": "object:744",
             "format": "Bps",
-            "label": "bytes/min",
+            "label": "bytes",
             "logBase": 1,
             "max": null,
             "min": null,
@@ -725,47 +835,39 @@
           "y": 16
         },
         "hiddenSeries": false,
-        "id": 17,
+        "id": 19,
         "isNew": true,
         "legend": {
           "avg": false,
           "current": false,
           "max": false,
           "min": false,
-          "show": false,
+          "show": true,
           "total": false,
           "values": false
         },
         "lines": true,
         "linewidth": 2,
         "links": [],
-        "nullPointMode": "null",
+        "nullPointMode": "connected",
         "options": {
-          "alertThreshold": false
+          "alertThreshold": true
         },
         "percentage": false,
         "pluginVersion": "7.4.3",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
-        "seriesOverrides": [
-          {
-            "$$hashKey": "object:519",
-            "alias": "/kafka/",
-            "color": "#F2495C"
-          }
-        ],
+        "seriesOverrides": [],
         "spaceLength": 10,
         "stack": false,
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum(kafka_controller_kafkacontroller_offlinepartitionscount)",
-            "hide": false,
-            "instant": false,
-            "interval": "",
+            "expr": "sum without(instance)(delta(kafka_server_brokertopicmetrics_bytesout_total{job=\"kafka\",topic!=\"\"}[1m]))",
+            "interval": "1m",
             "intervalFactor": 2,
-            "legendFormat": "",
+            "legendFormat": "{{topic}}",
             "metric": "kafka_server_brokertopicmetrics_bytesin_total",
             "refId": "A",
             "step": 4
@@ -775,7 +877,7 @@
         "timeFrom": null,
         "timeRegions": [],
         "timeShift": null,
-        "title": "Offline Partitions",
+        "title": "Bytes Out Per Topic",
         "tooltip": {
           "msResolution": false,
           "shared": true,
@@ -792,16 +894,16 @@
         },
         "yaxes": [
           {
-            "$$hashKey": "object:196",
-            "format": "none",
-            "label": "",
+            "$$hashKey": "object:744",
+            "format": "Bps",
+            "label": "bytes",
             "logBase": 1,
             "max": null,
-            "min": "0",
+            "min": null,
             "show": true
           },
           {
-            "$$hashKey": "object:197",
+            "$$hashKey": "object:745",
             "format": "short",
             "label": null,
             "logBase": 1,
@@ -885,7 +987,7 @@
         "targets": [
           {
             "expr": "rate(process_cpu_seconds_total{job=\"kafka\"}[1m])",
-            "interval": "",
+            "interval": "1m",
             "intervalFactor": 2,
             "legendFormat": "{{instance}}",
             "metric": "process_cpu_seconds_total",
@@ -914,6 +1016,7 @@
         },
         "yaxes": [
           {
+            "$$hashKey": "object:1816",
             "format": "short",
             "label": "Cores",
             "logBase": 1,
@@ -922,6 +1025,7 @@
             "show": true
           },
           {
+            "$$hashKey": "object:1817",
             "format": "short",
             "label": null,
             "logBase": 1,
@@ -991,7 +1095,8 @@
         "targets": [
           {
             "expr": "sum without(area)(jvm_memory_bytes_used{job=\"kafka\"})",
-            "intervalFactor": 2,
+            "interval": "1m",
+            "intervalFactor": 1,
             "legendFormat": "{{instance}}",
             "metric": "jvm_memory_bytes_used",
             "refId": "A",
@@ -1019,6 +1124,7 @@
         },
         "yaxes": [
           {
+            "$$hashKey": "object:1755",
             "format": "bytes",
             "label": "Memory",
             "logBase": 1,
@@ -1027,6 +1133,7 @@
             "show": true
           },
           {
+            "$$hashKey": "object:1756",
             "format": "short",
             "label": null,
             "logBase": 1,
@@ -1095,7 +1202,8 @@
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum without(gc)(rate(jvm_gc_collection_seconds_sum{job=\"kafka\"}[5m]))",
+            "expr": "sum without(gc)(rate(jvm_gc_collection_seconds_sum{job=\"kafka\"}[1m]))",
+            "interval": "1m",
             "intervalFactor": 2,
             "legendFormat": "{{instance}}",
             "metric": "jvm_gc_collection_seconds_sum",
@@ -1124,14 +1232,16 @@
         },
         "yaxes": [
           {
+            "$$hashKey": "object:1635",
             "format": "percentunit",
             "label": "% time in GC",
             "logBase": 1,
-            "max": null,
+            "max": "1",
             "min": null,
             "show": true
           },
           {
+            "$$hashKey": "object:1636",
             "format": "short",
             "label": null,
             "logBase": 1,
@@ -1185,5 +1295,5 @@
     "timezone": "browser",
     "title": "Kafka Overview",
     "uid": "Co5CVXUMz",
-    "version": 9
+    "version": 4
   }
