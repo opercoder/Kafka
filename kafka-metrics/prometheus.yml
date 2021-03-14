@@ -1,0 +1,10 @@
+global:
+ scrape_interval: 10s
+ evaluation_interval: 10s
+scrape_configs:
+ - job_name: 'kafka'
+   static_configs:
+    - targets:
+      - node-1.s010996.slurm.io:7071
+      - node-2.s010996.slurm.io:7071
+      - node-3.s010996.slurm.io:7071
