@@ -36,7 +36,7 @@ public class TestProducer implements Callable<Integer> {
   private int count;
 
   @Option(names = {"-s",
-      "--sleep"}, description = "Sleep time between message sends, in milliseconds (default: 0ms)")
+      "--sleep"}, description = "Sleep time between message sends, in milliseconds. Can be randomized with --randomize-sleep option. (default: 0ms)")
   private int sleep = 0;
 
   @Option(names = {
