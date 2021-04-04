@@ -13,33 +13,36 @@
 Структура сообщения:
 ```
 {
-    "uuid":"22c53435-a8ca-4127-ac1a-0a53ed0f7786",
-    "productName":"Small Bronze Shirt",
-    "chargedAmount":71,
-    "creditCardNumber":"6767-0664-5679-6715-17",
+    "uuid":"3ee4184a-f48d-4dc3-91d3-08bbc477f2ce",
+    "productName":"Fantastic Aluminum Car",
+    "chargedAmount":100,
+    "creditCardNumber":"6767-6333-6265-7320",
     "creditCardType":"SOLO",
-    "countryCode":"AG"
+    "countryCode":"RO",
+    "isSuccessful":false
 }
 ```
 
 Позволяет динамически указывать acks, задержку между отправками и включать идемпотентность.
 
 ```
-$ java -cp test-clients/target/test-clients-1.0-SNAPSHOT-jar-with-dependencies.jar io.slurm.kafka.TestProducer --help
-Usage: <main class> [-hiV] [-a=<acks>] -b=<bootstrapServer> -c=<count>
-                    [-s=<sleep>] -t=<topic>
+$ java -cp test-clients/target/test-clients-1.0-SNAPSHOT-jar-with-dependencies.jar io.slurm.kafka.TestProducer -b=localhost:9092 -t input -c 10000 --randomize-sleep --help
+Usage: <main class> [-hiV] [--randomize-sleep] [-a=<acks>] -b=<bootstrapServer>
+                    -c=<count> [-s=<sleep>] -t=<topic>
 Sends messages to a topic continuously
-  -a, --acks=<acks>     Acks configuration, one of [1,0,-1]. If idempotence is
-                          enabled "-1" will be enforced. (default: 1)
+  -a, --acks=<acks>       Acks configuration, one of [1,0,-1]. If idempotence
+                            is enabled "-1" will be enforced. (default: 1)
   -b, --bootstrap-server=<bootstrapServer>
-                        Kafka Broker to connect to [HOST:PORT]
-  -c, --count=<count>   Number of messages to send
-  -h, --help            Show this help message and exit.
-  -i, --idempotent      Enable Idempotence (default: false)
-  -s, --sleep=<sleep>   Sleep time between message sends, in milliseconds
-                          (default: 0ms)
-  -t, --topic=<topic>   Kafka Topic to write into
-  -V, --version         Print version information and exit.
+                          Kafka Broker to connect to [HOST:PORT]
+  -c, --count=<count>     Number of messages to send
+  -h, --help              Show this help message and exit.
+  -i, --idempotent        Enable Idempotence (default: false)
+      --randomize-sleep   Randomizes sleep interval between subsequent produce
+                            requests within [0, --sleep] ms. Default: false
+  -s, --sleep=<sleep>     Sleep time between message sends, in milliseconds
+                            (default: 0ms)
+  -t, --topic=<topic>     Kafka Topic to write into
+  -V, --version           Print version information and exit.
 ```
 
 ## io.slurm.kafka.ReadProcessWriteExactlyOnceApp
@@ -52,7 +55,7 @@ Exactly-Once обработки случайно сгенерированных 
 Позволяет динамически контролировать group id, static membership и cooperative rebalancing консюмера.
 
 ```
-% java -cp test-clients/target/test-clients-1.0-SNAPSHOT-jar-with-dependencies.jar io.slurm.kafka.ReadProcessWriteExactlyOnceApp --help
+$ java -cp test-clients/target/test-clients-1.0-SNAPSHOT-jar-with-dependencies.jar io.slurm.kafka.ReadProcessWriteExactlyOnceApp --help
 Usage: <main class> [-hV] [--[no-]cooperative-rebalancing] [--[no-]
                     static-membership] -b=<bootstrapServer>
                     [--charge-threshold=<suspiciousChargeThreshold>] -g=<group>

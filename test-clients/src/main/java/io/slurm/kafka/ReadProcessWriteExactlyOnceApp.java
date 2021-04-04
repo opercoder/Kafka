@@ -52,14 +52,14 @@ public class ReadProcessWriteExactlyOnceApp implements Callable<Integer>,
   private String id;
 
   @Option(names = {
-      "--no-static-membership"}, negatable = true, description = "Enable Static Membership. Default: true")
+      "--no-static-membership"}, negatable = true, description = "Enable Static Membership. (default: true)")
   private boolean enableStaticMembership = true;
 
   @Option(names = {
-      "--no-cooperative-rebalancing"}, negatable = true, description = "Enable Cooperative Rebalancing. Default: true")
+      "--no-cooperative-rebalancing"}, negatable = true, description = "Enable Cooperative Rebalancing. (default: true)")
   private boolean enableCooperativeRebalancing = true;
 
-  @Option(names = {"--charge-threshold"}, description = "Suspicious Charge Threshold. Default: 90 USD")
+  @Option(names = {"--charge-threshold"}, description = "Suspicious Charge Threshold. (default: 90)")
   private int suspiciousChargeThreshold = 90;
 
   private Consumer<String, String> consumer;

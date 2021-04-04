@@ -16,6 +16,7 @@ public class RandomChargeMessage {
   private final String creditCardNumber;
   private final String creditCardType;
   private final String countryCode;
+  private final boolean isSuccessful;
 
   public RandomChargeMessage() {
     var creditCardType = randomCreditCardType();
@@ -25,6 +26,7 @@ public class RandomChargeMessage {
     this.creditCardNumber = faker.finance().creditCard(creditCardType);
     this.creditCardType = creditCardType.name();
     this.countryCode = faker.address().countryCode();
+    this.isSuccessful = faker.random().nextBoolean();
   }
 
   private CreditCardType randomCreditCardType() {
@@ -61,6 +63,10 @@ public class RandomChargeMessage {
 
   public String getCountryCode() {
     return countryCode;
+  }
+
+  public boolean isSuccessful() {
+    return isSuccessful;
   }
 
 }

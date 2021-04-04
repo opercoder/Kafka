@@ -3,6 +3,7 @@ package io.slurm.kafka;
 import io.slurm.kafka.message.RandomChargeMessage;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -17,6 +18,7 @@ import picocli.CommandLine.Option;
 @Command(mixinStandardHelpOptions = true, description = "Sends messages to a topic continuously")
 public class TestProducer implements Callable<Integer> {
 
+  private final static Random random = new Random();
   private final Logger logger = LoggerFactory.getLogger(TestProducer.class);
 
   @Option(names = {"-b",
@@ -35,33 +37,44 @@ public class TestProducer implements Callable<Integer> {
 
   @Option(names = {"-s",
       "--sleep"}, description = "Sleep time between message sends, in milliseconds (default: 0ms)")
-  private long sleep = 0;
+  private int sleep = 0;
+
+  @Option(names = {
+      "--randomize-sleep"}, description = "Randomizes sleep interval between subsequent produce requests within [0, --sleep] ms. (default: false)")
+  private boolean randomizeSleep = false;
 
   @Option(names = {"-i", "--idempotent"}, description = "Enable Idempotence (default: false)")
-  private boolean isIdempotent = false;
+  private boolean idempotent = false;
 
+  @SuppressWarnings("BusyWait")
   public Integer call() throws InterruptedException {
     var props = new Properties();
     props.put("client.id", "slurm-producer");
     props.put("bootstrap.servers", bootstrapServer);
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-    if (isIdempotent) {
+    if (idempotent) {
       props.put("enable.idempotence", "true");
     } else {
       props.put("acks", acks);
       props.put("retries", "0");
     }
 
+    if (randomizeSleep && sleep == 0) {
+      throw new IllegalArgumentException("Randomized sleep requires --sleep to be above 0");
+    }
+
     var producer = new KafkaProducer<String, String>(props);
     var stats = new Stats(count, 1000);
 
     for (int i = 0; i < count; i++) {
-      long sendStartMs = System.currentTimeMillis();
+      var sendStartMs = System.currentTimeMillis();
       producer.send(new ProducerRecord<>(topic, new RandomChargeMessage().toJson()),
           stats.nextCompletion(sendStartMs));
       if (sleep > 0) {
-        Thread.sleep(sleep);
+        var sleepTimeMs = randomizeSleep ? random.nextInt(sleep) : sleep;
+        logger.debug("Sleeping for {}ms in-between produce requests", sleepTimeMs);
+        Thread.sleep(sleepTimeMs);
       }
     }
     producer.close();
