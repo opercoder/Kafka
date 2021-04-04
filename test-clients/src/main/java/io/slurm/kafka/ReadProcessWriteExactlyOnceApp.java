@@ -59,6 +59,9 @@ public class ReadProcessWriteExactlyOnceApp implements Callable<Integer>,
       "--no-cooperative-rebalancing"}, negatable = true, description = "Enable Cooperative Rebalancing. Default: true")
   private boolean enableCooperativeRebalancing = true;
 
+  @Option(names = {"--charge-threshold"}, description = "Suspicious Charge Threshold. Default: 90 USD")
+  private int suspiciousChargeThreshold = 90;
+
   private Consumer<String, String> consumer;
   private Producer<String, String> producer;
   
@@ -82,7 +85,7 @@ public class ReadProcessWriteExactlyOnceApp implements Callable<Integer>,
       var suspiciousCharges = new ArrayList<RandomChargeMessage>();
       records.forEach(record -> {
         var chargeMessage = RandomChargeMessage.fromJson(record.value());
-        if (chargeMessage.getChargedAmount() > 90_000) {
+        if (chargeMessage.getChargedAmount() > suspiciousChargeThreshold) {
           suspiciousCharges.add(chargeMessage);
         }
       });

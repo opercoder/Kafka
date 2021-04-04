@@ -1,21 +1,34 @@
 package io.slurm.kafka.message;
 
+import com.github.javafaker.CreditCardType;
+import com.github.javafaker.Faker;
 import com.google.gson.Gson;
-import java.util.Random;
 import java.util.UUID;
 
 public class RandomChargeMessage {
 
-  private final static Random random = new Random();
   private final static Gson gson = new Gson();
-  private String uuid;
-  private int chargedAmount;
-  private String creditCardNumber;
+  private final static Faker faker = new Faker();
+
+  private final String uuid;
+  private final String productName;
+  private final int chargedAmount;
+  private final String creditCardNumber;
+  private final String creditCardType;
+  private final String countryCode;
 
   public RandomChargeMessage() {
+    var creditCardType = randomCreditCardType();
     this.uuid = UUID.randomUUID().toString();
-    this.chargedAmount = 1 + random.nextInt(99_999);
-    this.creditCardNumber = generateCardNumber();
+    this.productName = faker.commerce().productName();
+    this.chargedAmount = 1 + faker.random().nextInt(100);
+    this.creditCardNumber = faker.finance().creditCard(creditCardType);
+    this.creditCardType = creditCardType.name();
+    this.countryCode = faker.address().countryCode();
+  }
+
+  private CreditCardType randomCreditCardType() {
+    return CreditCardType.values()[faker.random().nextInt(CreditCardType.values().length)];
   }
 
   public String toJson() {
@@ -24,15 +37,6 @@ public class RandomChargeMessage {
 
   public static RandomChargeMessage fromJson(String json) {
     return gson.fromJson(json, RandomChargeMessage.class);
-  }
-
-  private String generateCardNumber() {
-    var builder = new StringBuilder();
-    for (int i = 0; i < 16; i++) {
-      int generate = random.nextInt(9);
-      builder.append(generate);
-    }
-    return builder.toString();
   }
 
   public String getUuid() {
@@ -45,6 +49,18 @@ public class RandomChargeMessage {
 
   public String getCreditCardNumber() {
     return creditCardNumber;
+  }
+
+  public String getProductName() {
+    return productName;
+  }
+
+  public String getCreditCardType() {
+    return creditCardType;
+  }
+
+  public String getCountryCode() {
+    return countryCode;
   }
 
 }

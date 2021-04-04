@@ -11,7 +11,7 @@ Within `kafka-docker` folder:
 3 brokers, 1 zk, min.insync.replicas = 2, no auto-topic creation, pinned broker IDs (101,102,103) and ports (9092,9093,9094)
 
 ```
-$ sed -i '' -e 's/192.168.2.17/YOUR_IP_ADDRESS/' docker-compose-cluster.yaml
+$ sed -i '' -e 's/127.0.0.1/YOUR_IP_ADDRESS/' docker-compose-cluster.yaml
 $ docker-compose -f docker-compose-cluster.yaml up -d
 ```
 

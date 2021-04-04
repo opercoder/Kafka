@@ -6,9 +6,21 @@
 
 Для сборки клиентов запустите `mvn package` в корневой директории проекта.
 
-## Producer
+## io.slurm.kafka.TestProducer
 
 Тестовый producer генерирует случайные сообщения типа "оплата" и отправляет их в заданный топик.
+
+Структура сообщения:
+```
+{
+    "uuid":"22c53435-a8ca-4127-ac1a-0a53ed0f7786",
+    "productName":"Small Bronze Shirt",
+    "chargedAmount":71,
+    "creditCardNumber":"6767-0664-5679-6715-17",
+    "creditCardType":"SOLO",
+    "countryCode":"AG"
+}
+```
 
 Позволяет динамически указывать acks, задержку между отправками и включать идемпотентность.
 
@@ -30,23 +42,26 @@ Sends messages to a topic continuously
   -V, --version         Print version information and exit.
 ```
 
-## Consumer
+## io.slurm.kafka.ReadProcessWriteExactlyOnceApp
 
 Простое транзакционное приложение совмещающее в себе функционал Consumer и Transactional Producer для
 Exactly-Once обработки случайно сгенерированных оплат.
 
-Слушает заданный входной топик `--in` и отфильтровывает платежи с суммой свыше 90 000 USD в топик `--out`.
+Слушает заданный входной топик `--in` и отфильтровывает платежи с суммой свыше 90 USD (по-умолчанию) в топик `--out`.
 
 Позволяет динамически контролировать group id, static membership и cooperative rebalancing консюмера.
 
 ```
-$ java -cp test-clients/target/test-clients-1.0-SNAPSHOT-jar-with-dependencies.jar io.slurm.kafka.ReadProcessWriteExactlyOnceApp --help
+% java -cp test-clients/target/test-clients-1.0-SNAPSHOT-jar-with-dependencies.jar io.slurm.kafka.ReadProcessWriteExactlyOnceApp --help
 Usage: <main class> [-hV] [--[no-]cooperative-rebalancing] [--[no-]
-                    static-membership] -b=<bootstrapServer> -g=<group>
+                    static-membership] -b=<bootstrapServer>
+                    [--charge-threshold=<suspiciousChargeThreshold>] -g=<group>
                     --id=<id> --in=<inputTopic> --out=<outputTopic>
 Reads messages from a topic and processes them
   -b, --bootstrap-server=<bootstrapServer>
                         Kafka Broker to connect to [HOST:PORT]
+      --charge-threshold=<suspiciousChargeThreshold>
+                        Suspicious Charge Threshold. Default: 90 USD
   -g, --group=<group>   Consumer Group ID
   -h, --help            Show this help message and exit.
       --id=<id>         Unique Processor ID
