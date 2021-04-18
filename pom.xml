@@ -12,12 +12,13 @@
     <kafka.version>2.7.0</kafka.version>
   </properties>
 
-  <groupId>org.example</groupId>
+  <groupId>io.slurm</groupId>
   <artifactId>io.slurm.kafka</artifactId>
   <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
   <modules>
     <module>test-clients</module>
+    <module>final-practice-clients</module>
   </modules>
 
   <dependencyManagement>
