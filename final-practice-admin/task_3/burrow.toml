@@ -1,0 +1,57 @@
+[general]
+pidfile="burrow.pid"
+stdout-logfile="burrow.out"
+access-control-allow-origin="*"
+
+[logging]
+filename="logs/burrow.log"
+level="info"
+maxsize=100
+maxbackups=30
+maxage=10
+use-localtime=false
+use-compression=true
+
+[zookeeper]
+servers=[ "node-1.<ваш номер студента>:2181", "node-2.<ваш номер студента>:2181", "node-3.<ваш номер студента>:2181" ]
+timeout=6
+root-path="/burrow"
+
+[client-profile.test]
+client-id="burrow-test"
+kafka-version="0.10.0"
+
+[cluster.local]
+class-name="kafka"
+servers=[ "node-1.<ваш номер студента>:9092", "node-2.<ваш номер студента>:9092", "node-3.<ваш номер студента>:9092" ]
+handshake-first=true
+client-profile="test"
+topic-refresh=120
+offset-refresh=30
+
+[consumer.local]
+class-name="kafka"
+cluster="local"
+servers=[ "node-1.<ваш номер студента>:9092", "node-2.<ваш номер студента>:9092", "node-3.<ваш номер студента>:9092" ]
+client-profile="test"
+group-denylist="^(console-consumer-|python-kafka-consumer-|quick-).*$"
+group-allowlist=""
+
+[consumer.local_zk]
+class-name="kafka_zk"
+cluster="local"
+servers=[ "node-1.<ваш номер студента>:2181", "node-2.<ваш номер студента>:2181", "node-3.<ваш номер студента>:2181" ]
+zookeeper-path="/kafka"
+zookeeper-timeout=30
+group-denylist="^(console-consumer-|python-kafka-consumer-|quick-).*$"
+group-allowlist=""
+
+[httpserver.default]
+address=":8000"
+
+[storage.default]
+class-name="inmemory"
+workers=20
+intervals=15
+expire-group=604800
+min-distance=1

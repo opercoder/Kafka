@@ -1,0 +1,14 @@
+[Unit]
+Description=Burrow
+After=network.target
+
+[Service]
+User=burrow
+Type=simple
+Restart=on-failure
+RestartSec=5s
+WorkingDirectory=/opt/burrow/
+ExecStart=/opt/burrow/burrow -config-dir /opt/burrow/config/
+
+[Install]
+WantedBy=multi-user.target
