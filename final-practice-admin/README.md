@@ -9,7 +9,7 @@
 ## Задание 2
 
 - Добавить JMX Exporter агентов для брокеров Apache Kafka и серверов ZooKeeper (не забыть про рестарт)
-- Проверить метрики кластера Apache Kafka на уже готовом дашборде – `http://grafana.<ваш номер студента>.edu.slurm.io/d/Co5CVXUMz/kafka-overview?orgId=1&refresh=10s&from=now-15m&to=now`
+- Проверить метрики кластера Apache Kafka на уже готовом дашборде – `http://grafana.<ваш номер студента>.edu.slurm.io/dashboards`
 
 [Ответ на задание 2](task_2/README.md)
 
