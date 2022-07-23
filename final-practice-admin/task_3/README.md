@@ -13,6 +13,7 @@ tar xzvf /opt/Burrow_1.3.6_linux_amd64.tar.gz -C /opt/burrow
 vim /opt/burrow/config/burrow.toml
 
 useradd burrow
+chown burrow: opt/burrow
 
 cat << 'EOF' > /etc/systemd/system/burrow.service
 [Unit]

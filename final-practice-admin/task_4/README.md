@@ -101,22 +101,30 @@ vim config/server.properties
 
 ```json
 {"topics":  [
-    {"topic": "final-practices"}
+    {"topic": "final-practice"}
  ],
 "version":1
 }
 ```
 
 Сгенерируем план переназначения партиций:
-
 ```bash
-./bin/kafka-reassign-partitions.sh --generate --bootstrap-server node-1.<ваш номер студента>:9092 --topics-to-move-json-file /opt/kafka_2.13-2.7.0/topics-to-move.json --broker-list "1,2,4"
+./bin/kafka-reassign-partitions.sh --bootstrap-server node-1.<ваш номер студента>:9092 --generate --topics-to-move-json-file /opt/kafka_2.13-2.7.0/topics-to-move.json --broker-list 1,2,4 | tee >(awk -F: '/Current partition replica assignment/ { getline; print $0 }' | jq > /opt/kafka_2.13-2.7.0/topic.current.json) >(awk -F: '/Proposed partition reassignment configuration/ { getline; print $0 }' | jq > /opt/kafka_2.13-2.7.0/topic.reassigned.json)
 ```
 
-Внесите полученное на предыдущем этапе содержимое в файл `reassigned.json` и запустите команду:
-
+Внесите полученное на предыдущем этапе содержимое в файл `topic.reassigned.json` (в самой команде уже сделали это мы) и запустите команду:
 ```bash
-./bin/kafka-reassign-partitions.sh --bootstrap-server node-1.<ваш номер студента>:9092 --reassignment-json-file reassigned.json --throttle 100000 --execute 
+./bin/kafka-reassign-partitions.sh --bootstrap-server node-1.<ваш номер студента>:9092 --reassignment-json-file /opt/kafka_2.13-2.7.0/topic.reassigned.json --throttle 100000 --execute 
 ```
 
 Обратите внимание на флаг `--throttle` - на нашем учебном примере данных совсем мало, поэтому должно хватить 100 кб/сек. Но на реальном продакшен-кластере при выполнении ребалансировки без этого флага может стать больно. Если видите, что цифра маловата, попробуйте увеличить лимит троттлинга на ходу.
+
+Проверим процесс переназначения 
+```bash
+./bin/kafka-reassign-partitions.sh --bootstrap-server node-1.<ваш номер студента>:9092 --verify --reassignment-json-file /opt/kafka_2.13-2.7.0/topic.reassigned.json
+```
+
+Посмотрим топик, после переназначения.
+```bash
+./bin/kafka-topics.sh --bootstrap-server node-1.<ваш номер студента>:9092 --describe --topic final-practice
+```
